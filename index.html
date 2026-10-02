@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Portfolio Landing</title>
+    
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        black: '#030303', 
+                        cyberRed: '#E6192B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #030303;
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #E6192B; }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(230, 25, 43, 0.4);
+            transform: translateX(4px);
+        }
+
+        .canvas-container {
+            mask-image: linear-gradient(to right, transparent 0%, black 50%, black 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 20%, black 70%, black 100%);
+        }
+
+        @media (max-width: 1024px) {
+            .canvas-container {
+                -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 100%);
+            }
+        }
+
+        /* Animations for HUD */
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes loadBar { from { width: 0%; } to { width: 84%; } }
+        
+        .tech-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-cyberRed selection:text-white">
+
+    <main class="relative min-h-screen flex flex-col lg:flex-row">
+        
+        <!-- Canvas Background -->
+        <div class="absolute inset-0 z-0 pointer-events-none canvas-container overflow-hidden">
+            <canvas id="network-canvas" class="w-full h-full"></canvas>
+        </div>
+
+        <!-- Left Column -->
+        <div class="relative z-10 w-full lg:w-7/12 min-h-screen flex flex-col justify-between p-8 sm:p-12 lg:p-20 lg:pr-12 bg-black overflow-hidden">
+            
+                <!-- Header (Updated with Text Logo) -->
+            <header class="relative z-10 flex justify-between items-center w-full border-b border-gray-800/60 pb-6">
+                <div class="flex items-center gap-4">
+                    <!-- Text Logo Replacement -->
+                    <div class="text-3xl tracking-tighter cursor-pointer select-none">
+                        <span class="font-sans font-normal text-gray-500">Design</span><span class="font-sans font-bold text-white">Ok</span>
+                    </div>
+                    <span class="font-mono text-[10px] text-gray-500 tracking-widest uppercase hidden sm:inline-block ml-2 border-l border-gray-800 pl-4">Sys.Terminal_v2.0</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-col items-end">
+                        <span class="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Network Status</span>
+                        <span class="font-mono text-xs text-cyberRed">SECURE</span>
+                    </div>
+                    <div class="w-2 h-2 bg-cyberRed rounded-full animate-pulse shadow-[0_0_8px_#E6192B]"></div>
+                </div>
+            </header>
+
+            <div class="flex-grow flex flex-col justify-center mt-12 mb-12 max-w-2xl relative z-10">
+                
+                <!-- Unauthenticated View -->
+                <div id="unauth-view" class="transition-opacity duration-500">
+                    
+                    <!-- Terminal Prompt -->
+                    <div class="inline-flex items-center px-2 py-1 mb-6 bg-gray-900/60 border border-gray-800 text-gray-400 font-mono text-[10px] tracking-widest uppercase backdrop-blur-sm">
+                        <span class="text-cyberRed mr-2">>></span> System Ready
+                    </div>
+                    
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.05] mb-6">
+                        Security built into<br />every system layer
+                    </h1>
+                    <p class="font-mono text-gray-400 text-sm sm:text-base leading-relaxed mb-10 max-w-md">
+                        Engineered to stay resilient, controlled,<br/>and uncompromised under pressure.
+                    </p>
+                    
+                    <div>
+                        <button id="btn-enter-system" class="bg-cyberRed text-white font-medium py-4 px-8 inline-flex items-center gap-3 transition-all duration-300 btn-glow border border-transparent hover:border-red-400/50 shadow-[0_0_15px_rgba(230,25,43,0.2)]">
+                            Enter System 
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Tech Stack / Filling the gap -->
+                    <div class="mt-12 pt-8 border-t border-gray-800/60 w-full max-w-md">
+                        <p class="font-mono text-[10px] text-gray-500 uppercase tracking-widest mb-4">Core Infrastructures</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1.5 bg-black/60 border border-gray-800 text-gray-400 font-mono text-[10px] hover:border-cyberRed/50 hover:text-cyberRed transition-colors cursor-default backdrop-blur-sm">Google Cloud</span>
+                            <span class="px-3 py-1.5 bg-black/60 border border-gray-800 text-gray-400 font-mono text-[10px] hover:border-cyberRed/50 hover:text-cyberRed transition-colors cursor-default backdrop-blur-sm">Firebase</span>
+                            <span class="px-3 py-1.5 bg-black/60 border border-gray-800 text-gray-400 font-mono text-[10px] hover:border-cyberRed/50 hover:text-cyberRed transition-colors cursor-default backdrop-blur-sm">GitHub Actions</span>
+                            <span class="px-3 py-1.5 bg-black/60 border border-gray-800 text-gray-400 font-mono text-[10px] hover:border-cyberRed/50 hover:text-cyberRed transition-colors cursor-default backdrop-blur-sm">Vercel v0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authenticated View (HUD Style) -->
+                <div id="auth-view" class="hidden transition-opacity duration-500 absolute top-1/2 -translate-y-1/2 left-0 w-full pr-8">
+                    
+                    <div class="inline-flex items-center px-3 py-1 mb-6 border border-cyberRed/50 bg-cyberRed/10 text-cyberRed font-mono text-xs tracking-widest uppercase rounded shadow-[0_0_10px_rgba(230,25,43,0.3)]">
+                        <span class="inline-block w-2 h-2 bg-cyberRed rounded-full mr-2 animate-pulse"></span>
+                        Access Granted
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl font-black tracking-tighter mb-2 text-white/90">
+                        Welcome back
+                    </h1>
+                    
+                    <div class="mb-8">
+                        <span class="font-mono text-cyberRed text-xl mr-2">>_</span>
+                        <span id="user-email-display" class="font-mono text-xl text-white border-b border-gray-700 pb-1 inline-block" style="text-shadow: 0 0 8px rgba(255,255,255,0.3);">
+                            user@system.local
+                        </span>
+                        <span class="inline-block w-3 h-5 bg-cyberRed ml-1 align-middle" style="animation: blink 1s step-end infinite;"></span>
+                    </div>
+
+                    <!-- System Status HUD Box -->
+                    <div class="bg-black/40 border border-gray-800 p-4 mb-8 max-w-sm backdrop-blur-sm relative">
+                        <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-gray-500"></div>
+                        <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-gray-500"></div>
+                        <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gray-500"></div>
+                        <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gray-500"></div>
+                        
+                        <div class="grid grid-cols-2 gap-4 font-mono text-xs">
+                            <div>
+                                <div class="text-gray-500 mb-1">SYS.STATUS</div>
+                                <div class="text-green-400">ONLINE</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500 mb-1">SEC_LEVEL</div>
+                                <div class="text-white">ALPHA_1</div>
+                            </div>
+                            <div class="col-span-2">
+                                <div class="text-gray-500 mb-1 flex justify-between">
+                                    <span>MEM.ALLOCATION</span>
+                                    <span>84%</span>
+                                </div>
+                                <div class="w-full bg-gray-900 h-1">
+                                    <div class="bg-cyberRed h-1" style="animation: loadBar 2s ease-out forwards;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <button id="btn-view-portfolio" class="bg-white text-black font-bold py-3 px-6 transition-all duration-300 hover:bg-gray-200 flex items-center gap-2">
+                            Initialize Portfolio
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </button>
+                        <button id="btn-logout" class="border border-gray-600 text-gray-400 font-medium py-3 px-6 transition-all hover:border-cyberRed hover:text-cyberRed font-mono text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="relative z-10 pt-8 border-t border-gray-800/60">
+                <div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-lg">
+                    <div>
+                        <div class="text-2xl sm:text-3xl font-bold tracking-tight mb-1">10</div>
+                        <div class="font-mono text-[10px] text-gray-500 uppercase tracking-wider">Clients</div>
+                    </div>
+                    <div class="border-l border-gray-800/60 pl-4 sm:pl-8">
+                        <div class="text-2xl sm:text-3xl font-bold tracking-tight mb-1">99%</div>
+                        <div class="font-mono text-[10px] text-gray-500 uppercase tracking-wider">Satisfaction</div>
+                    </div>
+                    <div class="border-l border-gray-800/60 pl-4 sm:pl-8">
+                        <div class="text-2xl sm:text-3xl font-bold tracking-tight mb-1">฿5K</div>
+                        <div class="font-mono text-[10px] text-gray-500 uppercase tracking-wider">Revenue</div>
+                    </div>
+
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div id="auth-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="relative z-10 w-full max-w-md bg-[#0a0a0a] border border-gray-800 shadow-[0_0_50px_rgba(230,25,43,0.15)] p-8 m-4">
+            <button id="btn-close-modal" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="mb-8">
+                <h2 id="modal-title" class="text-2xl font-bold tracking-tight mb-2">System Login</h2>
+                <p class="font-mono text-xs text-gray-500">Authenticate to access restricted areas.</p>
+            </div>
+            <form id="auth-form" class="space-y-5">
+                <div>
+                    <label class="block font-mono text-xs text-gray-400 mb-2 uppercase tracking-wider">Identity (Email)</label>
+                    <input type="email" id="auth-email" required class="w-full bg-black border border-gray-700 text-white px-4 py-3 focus:outline-none focus:border-cyberRed focus:ring-1 focus:ring-cyberRed transition-colors font-mono text-sm" placeholder="user@domain.com">
+                </div>
+                <div>
+                    <label class="block font-mono text-xs text-gray-400 mb-2 uppercase tracking-wider">Passcode</label>
+                    <input type="password" id="auth-password" required class="w-full bg-black border border-gray-700 text-white px-4 py-3 focus:outline-none focus:border-cyberRed focus:ring-1 focus:ring-cyberRed transition-colors font-mono text-sm" placeholder="••••••••">
+                </div>
+                <div id="auth-error" class="hidden text-cyberRed font-mono text-xs bg-cyberRed/10 border border-cyberRed/30 p-3 rounded"></div>
+                <button type="submit" id="btn-submit-auth" class="w-full bg-cyberRed text-white font-bold py-3 hover:bg-red-700 transition-colors btn-glow border border-transparent mt-2">
+                    Initialize Connection
+                </button>
+            </form>
+            <div class="mt-6 pt-6 border-t border-gray-800 text-center">
+                <p class="font-mono text-xs text-gray-500">
+                    <span id="toggle-prompt">Don't have clearance?</span> 
+                    <button id="btn-toggle-auth" class="text-white hover:text-cyberRed underline ml-2 transition-colors">Request Access</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Canvas Animation
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        let width, height, dpr = window.devicePixelRatio || 1;
+        
+        const colors = { bg: '#000000', gridFaint: 'rgba(255,255,255,0.03)', gridRed: 'rgba(230,25,43,0.15)', pulseRed: '#E6192B', pulseWhite: '#FFFFFF' };
+        let gridLines = [], pulses = [], nodes = [];
+
+        function resize() {
+            width = window.innerWidth; height = window.innerHeight;
+            canvas.width = width * dpr; canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            initElements();
+        }
+
+        class GridLine {
+            constructor(x, y, isVertical) {
+                this.x = x; this.y = y; this.isVertical = isVertical;
+                const r = Math.random();
+                this.color = r > 0.8 ? colors.gridRed : (r > 0.4 ? colors.gridFaint : 'rgba(255,255,255,0.015)');
+                this.thickness = r > 0.4 ? 1 : 0.5;
+            }
+            draw() {
+                ctx.beginPath(); ctx.strokeStyle = this.color; ctx.lineWidth = this.thickness;
+                if (this.isVertical) {
+                    if(Math.random() > 0.95) ctx.setLineDash([10, 15]); else ctx.setLineDash([]);
+                    ctx.moveTo(this.x, 0); ctx.lineTo(this.x, height);
+                } else {
+                    if(Math.random() > 0.95) ctx.setLineDash([5, 20]); else ctx.setLineDash([]);
+                    ctx.moveTo(0, this.y); ctx.lineTo(width, this.y);
+                }
+                ctx.stroke(); ctx.setLineDash([]);
+            }
+        }
+
+        class Pulse {
+            constructor() { this.reset(); this.opacity = Math.random(); }
+            reset() {
+                this.isVertical = Math.random() > 0.6;
+                this.x = Math.floor((this.isVertical ? (width*0.4)+(Math.random()*width*0.6) : (Math.random()>0.5?0:width)) / 20) * 20;
+                this.y = Math.floor((this.isVertical ? (Math.random()>0.5?0:height) : Math.random()*height) / 20) * 20;
+                this.speed = (Math.random()*3+1.5) * (Math.random()>0.5?1:-1);
+                if (this.isVertical && this.y===0) this.speed = Math.abs(this.speed);
+                if (!this.isVertical && this.x===0) this.speed = Math.abs(this.speed);
+                this.length = Math.random()*100+20;
+                this.color = Math.random()>0.2 ? colors.pulseRed : colors.pulseWhite;
+                this.thickness = Math.random()>0.8 ? 2 : 1;
+                this.opacity = 1; this.decay = Math.random()*0.005+0.001;
+            }
+            update() {
+                if (this.isVertical) this.y += this.speed; else this.x += this.speed;
+                this.opacity -= this.decay;
+                if (this.opacity<=0 || this.x<-200 || this.x>width+200 || this.y<-200 || this.y>height+200) this.reset();
+            }
+            draw() {
+                ctx.beginPath(); ctx.globalAlpha = this.opacity; ctx.strokeStyle = this.color; ctx.lineWidth = this.thickness;
+                ctx.shadowBlur = 10; ctx.shadowColor = this.color;
+                if (this.isVertical) { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y - (this.length*Math.sign(this.speed))); }
+                else { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - (this.length*Math.sign(this.speed)), this.y); }
+                ctx.stroke(); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+            }
+        }
+
+        class DigitalNode {
+            constructor() { this.reset(); this.life = Math.random() * this.maxLife; }
+            reset() {
+                this.x = (width*0.3) + (Math.random()*width*0.7); this.y = Math.random()*height;
+                this.life = Math.random()*100+50; this.maxLife = this.life;
+                this.text = Math.random()>0.5 ? '0x'+Math.floor(Math.random()*4095).toString(16).toUpperCase() : ['SYS_REQ','NULL','MEM_0x','INIT'][Math.floor(Math.random()*4)];
+            }
+            update() { this.life--; if(this.life<=0) this.reset(); }
+            draw() {
+                ctx.globalAlpha = Math.sin((this.life/this.maxLife)*Math.PI)*0.8; ctx.fillStyle = colors.pulseRed;
+                ctx.font = '10px "Space Mono", monospace'; ctx.fillText(this.text, this.x, this.y);
+                ctx.fillRect(this.x-5, this.y-3, 2, 2); ctx.globalAlpha = 1;
+            }
+        }
+
+        function initElements() {
+            gridLines = []; pulses = []; nodes = [];
+            for(let i=0; i<Math.floor(width/30); i++) gridLines.push(new GridLine(Math.random()>0.7 ? width-(Math.random()*width*0.4) : Math.pow(Math.random(),1.5)*width, 0, true));
+            for(let i=0; i<Math.floor(height/40); i++) gridLines.push(new GridLine(0, Math.random()*height, false));
+            for(let i=0; i<(window.innerWidth>768?60:30); i++) pulses.push(new Pulse());
+            for(let i=0; i<(window.innerWidth>768?25:10); i++) nodes.push(new DigitalNode());
+        }
+
+        function animate() {
+            ctx.fillStyle = colors.bg; ctx.fillRect(0, 0, width, height);
+            gridLines.forEach(l => l.draw()); pulses.forEach(p => { p.update(); p.draw(); }); nodes.forEach(n => { n.update(); n.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize); resize(); animate();
+
+        // UI Logic
+        const els = {
+            btnEnter: document.getElementById('btn-enter-system'), modal: document.getElementById('auth-modal'),
+            btnClose: document.getElementById('btn-close-modal'), backdrop: document.getElementById('auth-backdrop'),
+            form: document.getElementById('auth-form'), btnToggle: document.getElementById('btn-toggle-auth'),
+            title: document.getElementById('modal-title'), prompt: document.getElementById('toggle-prompt'),
+            btnSubmit: document.getElementById('btn-submit-auth'), error: document.getElementById('auth-error'),
+            unauthView: document.getElementById('unauth-view'), authView: document.getElementById('auth-view'),
+            emailDisplay: document.getElementById('user-email-display'), btnLogout: document.getElementById('btn-logout'),
+            btnViewPortfolio: document.getElementById('btn-view-portfolio')
+        };
+        
+        let isLogin = true;
+
+        const openModal = () => { els.modal.classList.remove('hidden'); setTimeout(() => els.modal.classList.remove('opacity-0'), 10); };
+        const closeModal = () => { els.modal.classList.add('opacity-0'); setTimeout(() => { els.modal.classList.add('hidden'); els.error.classList.add('hidden'); els.form.reset(); }, 300); };
+        
+        els.btnEnter.addEventListener('click', openModal); els.btnClose.addEventListener('click', closeModal); els.backdrop.addEventListener('click', closeModal);
+
+        els.btnToggle.addEventListener('click', (e) => {
+            e.preventDefault(); isLogin = !isLogin; els.error.classList.add('hidden');
+            els.title.textContent = isLogin ? 'System Login' : 'Request Access';
+            els.btnSubmit.textContent = isLogin ? 'Initialize Connection' : 'Create Credentials';
+            els.prompt.textContent = isLogin ? "Don't have clearance?" : 'Already authorized?';
+            els.btnToggle.textContent = isLogin ? 'Request Access' : 'Login';
+        });
+
+        const updateUI = (user) => {
+            if (user) {
+                els.unauthView.classList.add('hidden', 'opacity-0'); els.authView.classList.remove('hidden');
+                setTimeout(() => els.authView.classList.remove('opacity-0'), 50);
+                els.emailDisplay.textContent = user.email; closeModal();
+            } else {
+                els.authView.classList.add('hidden', 'opacity-0'); els.unauthView.classList.remove('hidden');
+                setTimeout(() => els.unauthView.classList.remove('opacity-0'), 50);
+            }
+        };
+
+        els.form.addEventListener('submit', async (e) => {
+            e.preventDefault(); els.btnSubmit.disabled = true; els.btnSubmit.textContent = 'Processing...'; els.error.classList.add('hidden');
+            const email = document.getElementById('auth-email').value;
+            setTimeout(() => { 
+                updateUI({ email });
+                els.btnSubmit.disabled = false; els.btnSubmit.textContent = isLogin ? 'Initialize Connection' : 'Create Credentials';
+            }, 800);
+        });
+
+        els.btnLogout.addEventListener('click', () => updateUI(null));
+
+        els.btnViewPortfolio.addEventListener('click', () => {
+            window.location.href = 'portfolio.html';
+        });
+    </script>
+</body>
+</html>
